@@ -5,7 +5,7 @@ import store from './store'
 import Vant from 'vant'// 引入vant组件库
 import 'vant/lib/index.css'// 引入vant样式
 import 'amfe-flexible'// 引入淘宝移动适配方案
-import './style/reset.less'// 引入初始化样式
+import './style/index.less'// 引入总体样式 在index.less中导入字体和初始化以及其他使用的样式
 
 Vue.config.productionTip = false
 
