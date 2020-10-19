@@ -8,12 +8,8 @@ const getters = {
 }
 const mutations = {
   // 设置修改当前登录user
-  get_now_user_mutations (state, user) {
+  set_now_user_mutations (state, user) {
     state.now_user = user
-  },
-  // 清空当前用户信息
-  clear_now_user_mutations (state) {
-    state.now_user = {}
   }
 }
 const actions = {

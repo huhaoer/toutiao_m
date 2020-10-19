@@ -1,12 +1,18 @@
 import axios from 'axios'
+import store from '@/store' // 在非组件模块中引入store 和组件中的this.$sotre是同一个东西
 
 const axiosInstance = axios.create({
   baseURL: 'http://ttapi.research.itcast.cn/',
   timeout: 10000
-//   headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
 })
 
+// 请求拦截器 添加认证请求头
 axiosInstance.interceptors.request.use(config => {
+  const { token } = store.state.user.now_user // 从user模块中解析出state数据
+  if (token) {
+    // 如果有token值就添加上请求头
+    config.headers.Authorization = `Bearer ${token}`
+  }
   return config
 }, err => {
   return Promise.reject(err)

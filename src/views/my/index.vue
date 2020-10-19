@@ -1,61 +1,59 @@
 <template>
   <div class="my_container">
-    <van-cell-group class="container_top">
+    <van-cell-group class="container_top" v-if="NOW_USER_GETTERS.token">
       <!-- 头像栏信息 -->
-      <van-cell class="container_top--avatar" center :border="false" v-if="NOW_USER.token">
+      <van-cell class="container_top--avatar" center :border="false">
         <van-image
           fit="fill"
           width="66"
           height="66"
           round
-          src="https://img.yzcdn.cn/vant/cat.jpeg"
+          :src="currentUserInfo.photo"
           slot="icon"
           class="avatar_img"
         />
-        <div class="nickName" slot="title">昵称</div>
+        <div class="nickName" slot="title">{{ currentUserInfo.name }}</div>
         <van-button class="update-btn" size="small" round to="/"
           >编辑资料</van-button
         >
       </van-cell>
 
-      <!-- 未登录状态时显示的头部信息栏 -->
-      <div class="container_top--nologin" v-else>
-        <div class="nologin--wrap" @click="handleImageLogin">
-          <img src="../../assets/image/phone.png" alt="">
-        </div>
-        <div class="nologin--text">
-          点击登录
-        </div>
-      </div>
-
       <!-- 菜单栏 -->
       <van-grid :border="false" class="container_top--grid">
         <van-grid-item text="文字" class="grid_item">
           <div slot="text" class="item_wrap">
-            <div class="count">12</div>
+            <div class="count">{{ currentUserInfo.art_count }}</div>
             <div class="text">头条</div>
           </div>
         </van-grid-item>
         <van-grid-item text="文字" class="grid_item">
           <div slot="text" class="item_wrap">
-            <div class="count">12</div>
+            <div class="count">{{ currentUserInfo.follow_count }}</div>
             <div class="text">关注</div>
           </div>
         </van-grid-item>
         <van-grid-item text="文字" class="grid_item">
           <div slot="text" class="item_wrap">
-            <div class="count">12</div>
+            <div class="count">{{ currentUserInfo.fans_count }}</div>
             <div class="text">粉丝</div>
           </div>
         </van-grid-item>
         <van-grid-item text="文字" class="grid_item">
           <div slot="text" class="item_wrap">
-            <div class="count">12</div>
+            <div class="count">{{ currentUserInfo.like_count }}</div>
             <div class="text">获赞</div>
           </div>
         </van-grid-item>
       </van-grid>
     </van-cell-group>
+
+    <!-- 未登录状态时显示的头部信息栏 -->
+    <div class="container_top--nologin" v-else>
+      <div class="nologin--wrap" @click="handleImageLogin">
+        <img src="../../assets/image/phone.png" alt="" />
+      </div>
+      <div class="nologin--text">点击登录</div>
+    </div>
 
     <!-- 收藏和历史 -->
     <van-grid :column-num="2" class="container_top--save mb-4">
@@ -67,42 +65,68 @@
     <van-cell title="消息通知" is-link />
     <van-cell title="小智同学" is-link class="mb-4" />
     <!-- 根据vuex获取当前用户信息，当前用户处于登录状态 显示退出按钮 -->
-    <van-cell title="退出" class="cell_out" v-if="NOW_USER.token" @click="handleLogout" />
-    {{ NOW_USER }}
+    <van-cell
+      title="退出"
+      class="cell_out"
+      v-if="NOW_USER_GETTERS.token"
+      @click="handleLogout"
+    />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import { getUserInfomation } from '@/api/user'
 
 export default {
   name: 'My',
   data () {
     return {
-
+      currentUserInfo: {} // 当前登录用户数据信息
     }
   },
   computed: {
     ...mapGetters({
-      NOW_USER: 'user/now_user_getters'
+      NOW_USER_GETTERS: 'user/now_user_getters'
     })
   },
   methods: {
     ...mapMutations({
-      CLEAR_NOW_USER: 'user/clear_now_user_mutations'
+      SET_NOW_USER_MUTATIONS: 'user/set_now_user_mutations'
     }),
 
     // 点击退出
     handleLogout () {
-      console.log(111)
-      this.CLEAR_NOW_USER()// 清除vuex的用户信息
+      // 弹框询问
+      this.$dialog
+        .confirm({
+          title: '退出提示',
+          message: '确定退出登录吗?'
+        })
+        .then(() => {
+          // 确定按钮
+          this.SET_NOW_USER_MUTATIONS({}) // 设置为空对象 清除vuex的用户信息
+        })
+        .catch(() => {
+
+        })
     },
     // 点击phone图标登录
     handleImageLogin () {
       this.$router.push('/login')
+    },
+    // 请求登录用户的个人信息
+    async requestUserInfo () {
+      const result = await getUserInfomation()
+      console.log(result, '请求的用户个人信息')
+      if (result.message === 'OK') {
+        this.currentUserInfo = result.data
+      }
     }
+  },
+  created () {
+    this.requestUserInfo()
   }
-
 }
 </script>
 
@@ -137,7 +161,7 @@ export default {
 
     &--nologin {
       height: 200px;
-          background-image: url("../../assets/image/banner.d43e3812.png");
+      background-image: url("../../assets/image/banner.d43e3812.png");
       background-repeat: no-repeat;
       background-size: cover;
       display: flex;

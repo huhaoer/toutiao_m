@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     ...mapMutations({
-      getNowUserMutations: 'user/get_now_user_mutations'
+      SET_NOW_USER_MUTATIONS: 'user/set_now_user_mutations'
     }),
 
     // 表单提交校验成功事件
@@ -96,9 +96,12 @@ export default {
         }
         const { data } = await login(sendData)
         // 4. 处理响应结果
-        this.$toast.success('登录成功')
+        this.$toast.success({
+          message: '登录成功',
+          forbidClick: true
+        })
         // 将后端返回的用户登录状态（token等数据）放到 Vuex 容器中
-        this.getNowUserMutations(data) // 保存登录token信息到vuex
+        this.SET_NOW_USER_MUTATIONS(data) // 保存登录token信息到vuex
         // 登录成功，跳转回原来页面
         // this.$router.back() // 先用这种方式，但是它不太好，有问题
         this.$router.push(this.$route.query.redirect || '/') // 从哪个页面登陆后，记录当前地址，登陆后将重定向参数redirect，然后跳转回登陆之前页面
