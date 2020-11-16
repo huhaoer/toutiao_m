@@ -14,8 +14,8 @@
         @load="onLoad"
       >
         <article-item
-          v-for="article in articleList"
-          :key="article.art_id"
+          v-for="(article, index) in articleList"
+          :key="index"
           :article="article"
         />
       </van-list>
@@ -57,8 +57,6 @@ export default {
         timestamp: this.timestamp || Date.now(),
         with_top: 1
       })
-
-      console.log(data, 'data')
 
       // 2.设置据列表,每次加载回来以push方式进行添加
       this.articleList.push(...data.data.results)

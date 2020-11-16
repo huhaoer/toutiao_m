@@ -5,7 +5,14 @@
     article.cover.type  ==> 0->无图  1->1张图  3->3张图
  -->
   <div class="article-item">
-    <van-cell>
+    <van-cell
+      :to="{
+        name: 'detail',
+        params: {
+          articleId: article.art_id
+        }
+      }"
+    >
       <!-- 左侧插槽 自定义左侧 title 的内容-->
       <div slot="title" class="atticle__title van-multi-ellipsis--l3">
         {{ article.title }}

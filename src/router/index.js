@@ -34,6 +34,17 @@ const routes = [
         component: () => import('@/views/my')
       }
     ]
+  },
+  {
+    path: '/search', // 搜索页面
+    name: 'Search',
+    component: () => import('@/views/search/')
+  },
+  {
+    path: '/detail/:articleId', // 文章详情 动态参数文章id
+    name: 'detail',
+    component: () => import('@/views/detail/'),
+    props: true // 开启props传参 动态参数会在组件内部以props形式接收
   }
 ]
 

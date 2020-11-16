@@ -9,9 +9,10 @@
           round
           size="small"
           icon="search"
+          to="/search"
           class="search__button"
-          >搜索</van-button
-        >
+          >搜索</van-button>
+          <span slot="left" class="header__navbar--left">Layoung</span>
       </van-nav-bar>
     </header>
     <!-- E 导航栏头部 -->
@@ -47,7 +48,13 @@
         get-container="body"
       >
         <!-- 避免组件结构复杂冗余，单独封装popup组件内部弹窗为一个组件 -->
-        <popup-content />
+        <!-- 使用$emit触发自定义事件时，可以在模板行间事件使用$event接收传递的参数 -->
+        <popup-content
+          :userChannels="channels"
+          @close-modal="isShowPop = false"
+          @update-active="active = $event"
+          :active-channel="active"
+        />
       </van-popup>
     </div>
     <!-- E popup弹出层-->
@@ -58,6 +65,7 @@
 import { getUserChannels } from '@/api/user'
 import ArticleList from './components/article-list'
 import PopupContent from './components/popup-content'
+import { mapGetters } from 'vuex'
 export default {
   name: 'Home',
   data () {
@@ -71,11 +79,35 @@ export default {
     ArticleList,
     PopupContent
   },
+  computed: {
+    ...mapGetters({
+      NOW_USER_GETTERS: 'user/now_user_getters', // 用户登录信息 vuex
+      USER_CHANNELS_GETTERS: 'channel/user_channels_getters' // 未登录时本地存储的频道信息 vuex
+    })
+  },
   methods: {
+    /**
+     * 获取用户频道列表数据 根据是否登录进行判断获取对应数据
+     */
     async getUserChannels () {
-      const result = await getUserChannels()
-      console.log(result, '获取用户频道')
-      this.channels = result.data.channels
+      let channels = [] // 要渲染的频道列表
+      if (this.NOW_USER_GETTERS.token) {
+        // 用户已经登陆 正常接口请求数据，根据携带的token值返回数据
+        const result = await getUserChannels()
+        channels = result.data.channels
+      } else {
+        // 未登录
+        if (this.USER_CHANNELS_GETTERS.length > 0) {
+          // 有本地缓存数据
+          channels = this.USER_CHANNELS_GETTERS
+        } else {
+          // 本地没有缓存
+          // 接口请求数据，未登录时没有token值会自动返回推荐的频道
+          const result = await getUserChannels()
+          channels = result.data.channels
+        }
+      }
+      this.channels = channels
     }
   },
   created () {
@@ -93,6 +125,11 @@ export default {
       background-color: #3196fa;
       /deep/ .van-nav-bar__title {
         max-width: none;
+        margin-left: 100px;
+      }
+      &--left {
+        color: #fff;
+        font-size: 16px;
       }
       .search__button {
         width: 250px;
